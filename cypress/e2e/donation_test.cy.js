@@ -48,17 +48,33 @@ describe("Donation Process", () => {
     cy.get('[data-cy="new_person_form_last_name"]').type("Volakhava");
 
     cy.contains("Continue").click();
-    cy.get(".__PrivateStripeElement > iframe")
-      .should("exist")
-      .then(($iframe) => {
-        const contentWindow = $iframe.contents()[0];
-        cy.wrap(contentWindow)
-          .should("not.be.empty")
-          .then(() => {
-            cy.wrap(contentWindow)
-              .find("#Field-numberInput")
-              .type("1234567890123456");
-          });
-      });
+
+    cy.get(".__PrivateStripeElement > iframe").click(); // in cy.get() insert stripe iframe id
+    cy.wait(2000);
+    cy.get("iframe").then(($iframe) => {
+      const doc = $iframe.contents();
+      let input = doc.find("input")[0];
+      cy.wrap(input).type("4242").type("4242").type("4242").type("4242");
+      input = doc.find("input")[1];
+      cy.wrap(input).clear().type("12").type("29");
+      input = doc.find("input")[2];
+      cy.wrap(input).type("123");
+
+      // Select Country from dropdown
+
+      cy.wrap(doc).find('select[name="country"]').select("CA");
+      cy.wrap(doc).find('input[name="postalCode"]').type("M1R 3H3");
+
+      cy.get(".ladda-label").should("exist");
+      cy.get(".ladda-label").click({ force: true });
+
+      cy.get("h1.pl-1").should("contain", "Thank you");
+
+      // Get back to initial page
+
+      cy.contains(".Navigation__link", "Give").click();
+
+      cy.get(".prepend-label").should("be.visible");
+    });
   });
 });
