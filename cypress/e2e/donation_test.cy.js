@@ -1,8 +1,9 @@
 describe("Donation Process", () => {
-  it("Should successfully complete the donation process", () => {
-    // Visit the donation view
+  beforeEach(() => {
     cy.visit("/");
+  });
 
+  it("Should successfully complete the donation process", () => {
     // Enter a donation fund
     cy.get('[data-cy="designations_input_amount"]').type("50");
 
@@ -34,6 +35,7 @@ describe("Donation Process", () => {
         );
         // Format the date as YYYY-MM-DD
         const formattedDate = nextMonthDate.toISOString().split("T")[0];
+
         // Set the calculated date as the value of the input field
         cy.wrap($input).type(formattedDate);
       });
@@ -49,7 +51,7 @@ describe("Donation Process", () => {
 
     cy.contains("Continue").click();
 
-    cy.get(".__PrivateStripeElement > iframe").click(); // in cy.get() insert stripe iframe id
+    cy.get(".__PrivateStripeElement > iframe").click(); //
     cy.wait(2000);
     cy.get("iframe").then(($iframe) => {
       const doc = $iframe.contents();
@@ -60,7 +62,7 @@ describe("Donation Process", () => {
       input = doc.find("input")[2];
       cy.wrap(input).type("123");
 
-      // Select Country from dropdown
+      // Select Country from dropdown and type in zip code
 
       cy.wrap(doc).find('select[name="country"]').select("CA");
       cy.wrap(doc).find('input[name="postalCode"]').type("M1R 3H3");
@@ -71,9 +73,7 @@ describe("Donation Process", () => {
       cy.get("h1.pl-1").should("contain", "Thank you");
 
       // Get back to initial page
-
       cy.contains(".Navigation__link", "Give").click();
-
       cy.get(".prepend-label").should("be.visible");
     });
   });
